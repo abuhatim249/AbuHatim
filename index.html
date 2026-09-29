@@ -210,27 +210,30 @@ h2 em::after {
 .feat { display: inline-flex; align-items: center; gap: 5px; }
 .check { color: var(--wa); font-weight: bold; font-size: 1.1rem; }
 
-/* ========== معرض الصور — مباشرة أسفل صف المميزات ========== */
+/* ========== معرض الصور: كبير + خط مستقيم + يغطي كل المساحة أسفل ========== */
 .gallery-strip {
   width: 100%;
+  flex: 1;                 /* يتمدد ليملأ كل المساحة الفارغة حتى أسفل الصفحة */
+  min-height: 180px;
+  display: flex;
+  align-items: center;     /* توسيط الصف عمودياً داخل المساحة */
   overflow: hidden;
-  padding: 6px 0 4px;
-  margin-top: 2px;
-  min-height: 76px; /* يحجز المكان حتى قبل تحميل الصور */
   pointer-events: none;
   user-select: none;
+  padding: 10px 0 14px;
+  margin-top: 4px;
 }
 .gallery-track {
   display: flex;
   align-items: center;
   width: max-content;
-  gap: 40px;
+  gap: clamp(30px, 9vw, 80px);
   padding: 0 20px;
-  animation: marquee-scroll 22s linear infinite;
+  animation: marquee-scroll 26s linear infinite;  /* حركة أفقية مستقيمة فقط */
 }
 .gallery-item {
-  width: 72px;
-  height: 72px;
+  height: clamp(130px, 36vw, 280px);   /* صور كبيرة */
+  width: clamp(170px, 47vw, 360px);
   flex: 0 0 auto;
   background: transparent;
   border: none;
@@ -241,15 +244,7 @@ h2 em::after {
   object-fit: contain;
   display: block;
   background: transparent;
-  animation: floaty 2.8s ease-in-out infinite;
-  filter: drop-shadow(0 4px 6px rgba(26, 38, 32, 0.15));
-}
-.gallery-item:nth-child(2n) img { animation-delay: 0.5s; }
-.gallery-item:nth-child(3n) img { animation-delay: 1s; }
-.gallery-item:nth-child(5n) img { animation-delay: 1.5s; }
-@keyframes floaty {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
+  filter: drop-shadow(0 6px 10px rgba(26, 38, 32, 0.18));
 }
 
 /* ================== الطبقة 1: نافذة بيانات الأثاث ================== */
@@ -518,8 +513,6 @@ h2 em::after {
   .marquee-bar { padding: 10px 0; }
   .marquee-track { gap: 40px; font-size: 1.2rem; }
   .logo h1 { font-size: 2.1rem; }
-  .gallery-item { width: 88px; height: 88px; }
-  .gallery-track { gap: 55px; }
 }
 </style>
 </head>
@@ -561,21 +554,20 @@ h2 em::after {
       <span class="feat"><span class="check">✓</span> فك وتحميل علينا</span>
       <span class="feat"><span class="check">✓</span> تقييم خلال دقائق</span>
     </div>
-
-    <!-- معرض الصور — مباشرة أسفل صف المميزات -->
-    <!-- data-src بدون امتداد: الكود يجرب png ثم webp ثم jpg ثم jpeg تلقائياً -->
-    <div class="gallery-strip" aria-hidden="true">
-      <div class="gallery-track" id="galleryTrack">
-        <div class="gallery-item"><img data-src="images/ac" alt=""></div>
-        <div class="gallery-item"><img data-src="images/kitchen" alt=""></div>
-        <div class="gallery-item"><img data-src="images/bedroom" alt=""></div>
-        <div class="gallery-item"><img data-src="images/fridge" alt=""></div>
-        <div class="gallery-item"><img data-src="images/sofa" alt=""></div>
-        <div class="gallery-item"><img data-src="images/kitchen-equipment" alt=""></div>
-        <div class="gallery-item"><img data-src="images/moving-truck" alt=""></div>
-      </div>
-    </div>
   </section>
+
+  <!-- المعرض: يبدأ مباشرة تحت المميزات ويتمدد ليغطي كل المساحة البيضاء حتى أسفل الشاشة -->
+  <div class="gallery-strip" aria-hidden="true">
+    <div class="gallery-track" id="galleryTrack">
+      <div class="gallery-item"><img data-src="images/ac" alt=""></div>
+      <div class="gallery-item"><img data-src="images/kitchen" alt=""></div>
+      <div class="gallery-item"><img data-src="images/bedroom" alt=""></div>
+      <div class="gallery-item"><img data-src="images/fridge" alt=""></div>
+      <div class="gallery-item"><img data-src="images/sofa" alt=""></div>
+      <div class="gallery-item"><img data-src="images/kitchen-equipment" alt=""></div>
+      <div class="gallery-item"><img data-src="images/moving-truck" alt=""></div>
+    </div>
+  </div>
 </div>
 
 <!-- الطبقة 1: نافذة بيانات الأثاث -->
@@ -643,10 +635,8 @@ h2 em::after {
   const galleryTrack = document.getElementById('galleryTrack');
 
   /* ========== تحميل الصور الذكي ========== */
-  // 1) تكرار العناصر لعمل حلقة تمرير متواصلة
   galleryTrack.innerHTML += galleryTrack.innerHTML;
 
-  // 2) لكل صورة: جرّب الامتدادات بالترتيب png → webp → jpg → jpeg
   document.querySelectorAll('.gallery-item img').forEach((img) => {
     const base = img.getAttribute('data-src');
     const exts = ['png', 'webp', 'jpg', 'jpeg'];
@@ -654,7 +644,7 @@ h2 em::after {
 
     function tryNext() {
       if (i >= exts.length) {
-        console.warn('⚠️ لم يتم العثور على الصورة: ' + base + '.[png/webp/jpg/jpeg] — تأكد من اسم الملف ومجلد images');
+        console.warn('⚠️ لم يتم العثور على الصورة: ' + base + '.[png/webp/jpg/jpeg]');
         img.closest('.gallery-item').style.display = 'none';
         return;
       }
@@ -664,7 +654,6 @@ h2 em::after {
     img.addEventListener('error', tryNext);
     img.addEventListener('load', () => {
       img.removeEventListener('error', tryNext);
-      console.log('✅ تم تحميل: ' + img.src);
     }, { once: true });
 
     tryNext();
