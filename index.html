@@ -211,12 +211,9 @@ h2 em::after {
 .feat { display: inline-flex; align-items: center; gap: 5px; }
 .check { color: var(--wa); font-weight: bold; font-size: 1.1rem; }
 
-/* ========== المعرض: حجم متوازن + سرعة حيّة + حافة لحافة ========== */
+/* ========== المعرض: حافة لحافة من الجانبين تلقائياً ========== */
 .gallery-strip {
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
+  width: 100vw;              /* بعرض الشاشة كامل، والتوسيط التلقائي يجعله حافة لحافة */
   flex: 1;
   min-height: 150px;
   display: flex;
@@ -237,12 +234,12 @@ h2 em::after {
   align-items: center;
   width: max-content;
   gap: var(--ggap);
-  animation: gallery-scroll 12s linear infinite;   /* سرعة حيّة وسلسة */
+  animation: gallery-scroll 12s linear infinite;
 }
 .gallery-track.paused { animation-play-state: paused; }
 
 .gallery-item {
-  height: clamp(110px, 30vw, 220px);   /* حجم متوازن: لا عملاق ولا صغير */
+  height: clamp(110px, 30vw, 220px);
   aspect-ratio: 17 / 10;
   flex: 0 0 auto;
   background: transparent;
@@ -573,7 +570,7 @@ h2 em::after {
     </div>
   </section>
 
-  <!-- المعرض: بعرض الشاشة كامل ويتمدد حتى أسفل الصفحة -->
+  <!-- المعرض: بعرض الشاشة كامل من الحافة للحافة -->
   <div class="gallery-strip" id="galleryStrip" aria-hidden="true">
     <div class="gallery-track" id="galleryTrack">
       <div class="gallery-item"><img data-src="images/ac" alt=""></div>
