@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1B5E35">
 <title>أبو حاتم | شراء الأثاث المستعمل</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -148,20 +147,16 @@ h2 em::after {
 }
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
-  to   { transform: translateX(50%); }
+  to { transform: translateX(50%); }
 }
 
-/* ========== العبارة: سطرين فقط (بدون علامة —) ========== */
 .desc { 
-  font-size: 0.95rem; 
+  font-size: 1.05rem; 
   font-weight: 700; 
   color: var(--gray); 
-  line-height: 1.7; 
-  max-width: 100%; 
+  line-height: 1.8; 
+  max-width: 95%; 
   margin-inline: auto; 
-}
-@media (max-width: 360px) {
-  .desc { font-size: 0.85rem; }
 }
 
 .cta-group { 
@@ -216,7 +211,6 @@ h2 em::after {
 .feat { display: inline-flex; align-items: center; gap: 5px; }
 .check { color: var(--wa); font-weight: bold; font-size: 1.1rem; }
 
-/* ========== المعرض: حافة لحافة من الجانبين تلقائياً ========== */
 .gallery-strip {
   width: 100vw;
   flex: 1;
@@ -265,7 +259,24 @@ h2 em::after {
   to   { transform: translateX(calc(50% + var(--ggap) / 2)); }
 }
 
-/* ================== الطبقة 1: نافذة بيانات الأثاث ================== */
+.offline-badge {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-60px);
+  background: var(--amber);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 500;
+  transition: transform 0.35s ease;
+  pointer-events: none;
+}
+.offline-badge.show { transform: translateX(-50%) translateY(0); }
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -371,7 +382,6 @@ h2 em::after {
 .select-value.placeholder { color: var(--gray); opacity: 0.6; font-weight: 600; }
 .select-arrow { width: 18px; height: 18px; fill: var(--green); flex-shrink: 0; }
 
-/* ================== الطبقة 2: القائمة المنبثقة الكاملة للأنواع ================== */
 .picker-overlay {
   position: fixed;
   inset: 0;
@@ -526,7 +536,7 @@ h2 em::after {
   .wrap { max-width: 700px; }
   .cta-group { flex-direction: row; }
   h2 { font-size: 3.2rem; }
-  .desc { font-size: 1.15rem; }
+  .desc { font-size: 1.25rem; }
   .marquee-bar { padding: 10px 0; }
   .marquee-track { gap: 40px; font-size: 1.2rem; }
   .logo h1 { font-size: 2.1rem; }
@@ -539,6 +549,8 @@ h2 em::after {
 <header>
   <div class="logo"><h1>أبوحاتم للأثاث المستعمل</h1></div>
 </header>
+
+<div class="offline-badge" id="offlineBadge">📡 أنت غير متصل — تعمل النسخة المحفوظة</div>
 
 <div class="wrap">
   <section class="hero">
@@ -553,8 +565,10 @@ h2 em::after {
       </div>
     </div>
     
-    <!-- العبارة: سطرين فقط، بدون علامة — -->
-    <p class="desc">أرسل صور أثاثك على واتساب، نقيّمه فوراً ونستلمه من باب بيتك، والدفع كاش يداً بيد.</p>
+    <p class="desc">
+      أرسل صور أثاثك على واتساب، نقيّمه فوراً<br>
+      ونستلمه من باب بيتك والدفع كاش يداً بيد
+    </p>
 
     <div class="cta-group">
       <a id="btnWa" href="#" class="btn-main btn-wa">
@@ -575,16 +589,9 @@ h2 em::after {
     </div>
   </section>
 
+  <!-- المعرض يُبنى تلقائياً من قائمة GALLERY_IMAGES داخل السكربت -->
   <div class="gallery-strip" id="galleryStrip" aria-hidden="true">
-    <div class="gallery-track" id="galleryTrack">
-      <div class="gallery-item"><img data-src="images/ac" alt=""></div>
-      <div class="gallery-item"><img data-src="images/kitchen" alt=""></div>
-      <div class="gallery-item"><img data-src="images/bedroom" alt=""></div>
-      <div class="gallery-item"><img data-src="images/fridge" alt=""></div>
-      <div class="gallery-item"><img data-src="images/sofa" alt=""></div>
-      <div class="gallery-item"><img data-src="images/kitchen-equipment" alt=""></div>
-      <div class="gallery-item"><img data-src="images/moving-truck" alt=""></div>
-    </div>
+    <div class="gallery-track" id="galleryTrack"></div>
   </div>
 </div>
 
@@ -637,14 +644,35 @@ h2 em::after {
 </div>
 
 <script>
-  /* ========== تسجيل Service Worker للعمل دون إنترنت ========== */
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log('✅ تم تسجيل Service Worker — الموقع سيعمل دون إنترنت بعد أول زيارة'))
-        .catch((err) => console.warn('⚠️ فشل تسجيل Service Worker:', err));
-    });
-  }
+  /* =====================================================
+     ⚙️ إعدادات المعرض — أضف أي صورة جديدة هنا بسطر واحد
+     ضع اسم الملف بدون امتداد داخل مجلد images وستظهر تلقائياً
+     ===================================================== */
+  const GALLERY_IMAGES = [
+    'ac',
+    'kitchen',
+    'bedroom',
+    'fridge',
+    'sofa',
+    'kitchen-equipment',
+    'moving-truck'
+    // مثال لإضافة صورة جديدة: 'wardrobe',
+  ];
+
+  /* أسماء بديلة تُجرَّب تلقائياً عند فشل الاسم الأساسي
+     (تصلح أخطاء التسمية الشائعة مثل حرف ناقص) */
+  const NAME_ALIASES = {
+    'kitchen-equipment': ['itchen-equipment', 'kitchen_equipment', 'kitchenequipment'],
+    'moving-truck': ['moving_truck', 'movingtruck', 'truck'],
+    'bedroom': ['bed-room', 'bed_room'],
+    'fridge': ['refrigerator', 'thallajat'],
+    'sofa': ['couch', 'kanab'],
+    'ac': ['air-conditioner', 'airconditioner', 'mokif'],
+    'kitchen': ['kitchin', 'matbakh']
+  };
+
+  const IMAGE_EXTS = ['png', 'webp', 'jpg', 'jpeg'];
+  const CACHE_NAME = 'abu-hatem-v2';
 
   const modal = document.getElementById('modal');
   const modalClose = document.getElementById('modalClose');
@@ -659,33 +687,110 @@ h2 em::after {
   const btnWa = document.getElementById('btnWa');
   const galleryTrack = document.getElementById('galleryTrack');
   const galleryStrip = document.getElementById('galleryStrip');
+  const offlineBadge = document.getElementById('offlineBadge');
 
-  /* ========== تحميل الصور الذكي (والكاش يخزنها تلقائياً) ========== */
+  /* ========== بناء المعرض ديناميكياً من القائمة ========== */
+  GALLERY_IMAGES.forEach(name => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    const img = document.createElement('img');
+    img.alt = '';
+    img.dataset.base = name;
+    item.appendChild(img);
+    galleryTrack.appendChild(item);
+  });
+  // تكرار العناصر لعمل حلقة تمرير متواصلة
   galleryTrack.innerHTML += galleryTrack.innerHTML;
 
-  document.querySelectorAll('.gallery-item img').forEach((img) => {
-    const base = img.getAttribute('data-src');
-    const exts = ['png', 'webp', 'jpg', 'jpeg'];
+  /* ========== المحمّل الذكي: الاسم → الأسماء البديلة → الامتدادات ========== */
+  async function cacheImage(url) {
+    if (!('caches' in window)) return;
+    try {
+      const cache = await caches.open(CACHE_NAME);
+      const res = await fetch(url, { cache: 'force-cache' });
+      if (res.ok) await cache.put(url, res.clone());
+    } catch {}
+  }
+
+  function makeLoader(img) {
+    const base = img.dataset.base;
+    const candidates = [base, ...(NAME_ALIASES[base] || [])];
+    const queue = [];
+    candidates.forEach(c => IMAGE_EXTS.forEach(e => queue.push('images/' + c + '.' + e)));
     let i = 0;
 
-    function tryNext() {
-      if (i >= exts.length) {
-        console.warn('⚠️ لم يتم العثور على الصورة: ' + base + '.[png/webp/jpg/jpeg]');
+    function fail() {
+      if (i >= queue.length) {
+        console.warn('⚠️ لم يتم العثور على صورة باسم: ' + base + ' — أضف الملف أو صحّح اسمه في مجلد images');
         img.closest('.gallery-item').style.display = 'none';
         return;
       }
-      img.src = base + '.' + exts[i++];
+      img.src = queue[i++];
     }
 
-    img.addEventListener('error', tryNext);
+    img.addEventListener('error', fail);
     img.addEventListener('load', () => {
-      img.removeEventListener('error', tryNext);
+      img.removeEventListener('error', fail);
+      console.log('✅ ظهرت الصورة: ' + img.src);
+      cacheImage(img.currentSrc || img.src); // حفظها للعمل دون إنترنت
     }, { once: true });
 
-    tryNext();
-  });
+    fail();
+  }
 
-  /* ========== اللمس يوقف الحركة، ورفع الإصبع يعيدها فوراً ========== */
+  document.querySelectorAll('.gallery-item img').forEach(makeLoader);
+
+  /* ========== Service Worker مضمن للعمل دون إنترنت ========== */
+  const SW_CODE = `
+    const CACHE = '${CACHE_NAME}';
+    self.addEventListener('install', e => { self.skipWaiting(); });
+    self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+    self.addEventListener('fetch', e => {
+      if (e.request.method !== 'GET') return;
+      e.respondWith(
+        caches.match(e.request).then(cached => {
+          if (cached) return cached;
+          return fetch(e.request).then(netRes => {
+            if (!netRes || netRes.status !== 200 || netRes.type !== 'basic') return netRes;
+            const copy = netRes.clone();
+            caches.open(CACHE).then(c => c.put(e.request, copy)).catch(()=>{});
+            return netRes;
+          }).catch(() => caches.match(e.request));
+        })
+      );
+    });
+  `;
+
+  async function registerInlineSW() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+      await navigator.serviceWorker.register(swUrl).catch(() => null);
+    } catch {}
+  }
+
+  async function cachePage() {
+    if (!('caches' in window)) return;
+    try {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.add(location.href).catch(() => {});
+    } catch {}
+  }
+
+  function updateOnlineStatus() {
+    offlineBadge.classList.toggle('show', !navigator.onLine);
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  (async () => {
+    await registerInlineSW();
+    await cachePage();
+  })();
+
+  /* ========== اللمس يوقف الحركة ========== */
   galleryStrip.addEventListener('pointerdown', () => galleryTrack.classList.add('paused'));
   window.addEventListener('pointerup', () => galleryTrack.classList.remove('paused'));
   window.addEventListener('pointercancel', () => galleryTrack.classList.remove('paused'));
@@ -693,7 +798,7 @@ h2 em::after {
 
   let selectedType = '';
 
-  /* ========== نظام الطبقات + زر رجوع الهاتف ========== */
+  /* ========== نظام الطبقات + زر الرجوع ========== */
   const layerStack = [];
 
   function pushLayer(name) {
@@ -716,7 +821,6 @@ h2 em::after {
     if (e.key === 'Escape') goBack();
   });
 
-  /* ========== تلميحات واضحة ومناسبة لكل نوع ========== */
   const placeholders = {
     'مكيفات': 'مثال: مكيف سبليت 24 وحدة، عدد 2، التبريد ممتاز ويشتغل بدون مشاكل، الاستخدام 3 سنوات، مركّب على الجدار',
     'مطابخ': 'مثال: مطبخ خشب إم دي إف مقاس 4×3 متر، اللون بني فاتح، مع فرن غاز وسحّاب وشفاط، حالة ممتازة بدون تلف',
@@ -727,7 +831,6 @@ h2 em::after {
     'نقل عفش': 'مثال: نقل عفش شقة 3 غرف من حي النرجس إلى حي الملقا، الدور الثالث ويوجد مصعد، العفش يشمل كنب وغرف نوم وثلاجة'
   };
 
-  /* ========== فتح وإغلاق الطبقات ========== */
   function openModal() {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -755,7 +858,6 @@ h2 em::after {
     selectedType = '';
   }
 
-  /* ========== الأحداث ========== */
   btnWa.addEventListener('click', (e) => {
     e.preventDefault();
     openModal();
