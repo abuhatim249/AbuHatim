@@ -21,142 +21,82 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-/* إعدادات الصفحة لملء الشاشة ومنع السكرول */
-html, body { 
-  height: 100%; width: 100%; overflow: hidden; 
-  overscroll-behavior: none; position: fixed; touch-action: none;
-}
-
-body { 
-  font-family: 'Almarai', sans-serif; background: var(--bg); color: var(--text); 
-  display: flex; flex-direction: column; line-height: 1.4;
-}
-
+html, body { height: 100%; width: 100%; overflow: hidden; overscroll-behavior: none; position: fixed; touch-action: none; }
+body { font-family: 'Almarai', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; line-height: 1.6; }
 a { text-decoration: none; color: inherit; transition: 0.1s ease; }
 
-/* الحاوية الرئيسية - تم إزالة الهوامش الكبيرة */
-.wrap { 
-  width: 100%; padding: 0; margin: 0 auto; flex: 1; 
-  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-  min-height: 0; 
-}
+.wrap { width: 100%; padding: 0 6%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
 
-/* الهيدر - مدمج تماماً */
-header { 
-  padding: 8px 0 6px; border-bottom: 1px solid var(--line);
-  background: var(--bg); width: 100%; z-index: 10; flex-shrink: 0;
-  display: flex; justify-content: center; align-items: center;
-}
-.logo h1 { 
-  font-family: 'Lalezar'; 
-  /* تكبير الخط بشكل كبير */
-  font-size: clamp(2rem, 8vw, 3rem); 
-  line-height: 1.1; color: var(--green); margin: 0; 
-}
+header { padding: 18px 0 12px; border-bottom: 1px solid var(--line); background: var(--bg); width: 100%; z-index: 10; display: flex; justify-content: center; align-items: center; }
+.logo h1 { font-family: 'Lalezar'; font-size: 2.1rem; line-height: 1.1; color: var(--green); letter-spacing: -0.5px; margin: 0; }
 
-/* المحتوى الرئيسي - تقليص المسافات الرأسية */
-.hero { 
-  padding: 10px 4% 5px; width: 100%; max-width: 600px; 
-  display: flex; flex-direction: column; align-items: center; 
-}
-
-.status { 
-  display: inline-flex; align-items: center; gap: 5px; 
-  background: #fff; border: 1px solid var(--line); 
-  padding: 4px 14px; border-radius: 50px; 
-  font-size: clamp(0.8rem, 3vw, 1rem); font-weight: 700; color: var(--green);
-  margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex-shrink: 0;
-}
+.hero { padding: 25px 0 10px; width: 100%; max-width: 650px; }
+.status { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--line); padding: 5px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 700; color: var(--green); margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
 .dot { width: 7px; height: 7px; background: var(--wa); border-radius: 50%; }
 
-h2 { 
-  font-family: 'Lalezar'; 
-  /* تكبير العنوان الرئيسي */
-  font-size: clamp(2.5rem, 10vw, 4rem); 
-  line-height: 1.1; margin-bottom: 6px; color: var(--text); flex-shrink: 0;
-}
+h2 { font-family: 'Lalezar'; font-size: clamp(2.2rem, 7vw, 3rem); line-height: 1.2; margin-bottom: 15px; color: var(--text); }
 h2 em { font-style: normal; color: var(--amber); position: relative; display: inline-block; }
-h2 em::after { 
-  content: ""; position: absolute; bottom: 4px; right: -4px; left: -4px; 
-  height: 10px; background: rgba(217, 140, 33, 0.25); z-index: -1; transform: skewX(-10deg); border-radius: 4px;
-}
+h2 em::after { content: ""; position: absolute; bottom: 4px; right: -4px; left: -4px; height: 10px; background: rgba(217, 140, 33, 0.2); z-index: -1; transform: skewX(-10deg); border-radius: 4px; }
 
-.desc { 
-  /* تكبير نص الوصف */
-  font-size: clamp(1rem, 4vw, 1.3rem); font-weight: 700; color: var(--gray);
-  margin-bottom: 12px; line-height: 1.5; 
-  max-width: 95%; margin-inline: auto; flex-shrink: 1;
-}
+.desc { font-size: 1.15rem; font-weight: 700; color: var(--gray); margin-bottom: 30px; line-height: 1.9; max-width: 95%; margin-inline: auto; }
 
-/* الشريط المتحرك الممتلئ تماماً */
-.marquee-wrapper {
-  width: 100%; /* عرض كامل بدون هوامش */
-  background: var(--green); 
-  padding: 10px 0; margin-bottom: 10px; 
-  overflow: hidden; white-space: nowrap; position: relative;
-  flex-shrink: 0;
-}
-.marquee-track {
-  display: inline-block; animation: scroll-text 12s linear infinite;
-  font-family: 'Lalezar'; 
-  font-size: clamp(1.2rem, 4.5vw, 1.6rem); /* خط أكبر للشريط */
-  color: #fff;
-}
-.marquee-track span { margin: 0 20px; }
-@keyframes scroll-text {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(50%); }
-}
-
-/* الأزرار */
-.cta-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; width: 100%; flex-shrink: 0; }
+/* تصميم الأزرار 3D الثابت */
+.cta-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 25px; width: 100%; }
 .btn-main {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: clamp(12px, 4vw, 18px); border-radius: 14px; 
-  font-family: 'Lalezar'; 
-  font-size: clamp(1.3rem, 5vw, 1.8rem); /* أزرار بخط كبير جداً */
-  border: none; cursor: pointer; position: relative;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px; border-radius: 16px; 
+  font-family: 'Lalezar'; font-size: 1.4rem; border: none; cursor: pointer; position: relative;
 }
 
-/* زر الواتساب - مرتفع */
+/* زر الواتساب - مرتفع افتراضياً */
 .btn-wa { 
   background: var(--wa); color: #fff; 
   box-shadow: 0 6px 0 var(--wa-dark), 0 12px 20px rgba(37, 211, 102, 0.25); 
   transform: translateY(0);
 }
 
-/* زر الاتصال - منخفض */
+/* زر الاتصال - منخفض افتراضياً */
 .btn-call { 
   background: var(--green); color: #fff; 
-  box-shadow: 0 3px 0 var(--green-dark), inset 0 3px 5px rgba(0,0,0,0.1); 
+  box-shadow: 0 2px 0 var(--green-dark), inset 0 2px 5px rgba(0,0,0,0.1); 
   transform: translateY(4px); 
 }
 
-/* تأثير الضغط */
-.pressed-effect { animation: click-mechanic 0.8s ease-in-out forwards !important; }
+/* كلاس الحركة المؤقتة عند الضغط */
+.pressed-effect {
+  animation: click-mechanic 1s ease-in-out forwards !important;
+}
+
+/* حركة الضغط العكسية للواتساب */
 @keyframes click-mechanic-down {
   0% { transform: translateY(0); box-shadow: 0 6px 0 var(--wa-dark), 0 12px 20px rgba(37, 211, 102, 0.25); }
   50% { transform: translateY(6px); box-shadow: 0 0 0 var(--wa-dark), 0 2px 5px rgba(37, 211, 102, 0.2); }
   100% { transform: translateY(0); box-shadow: 0 6px 0 var(--wa-dark), 0 12px 20px rgba(37, 211, 102, 0.25); }
 }
+
+/* حركة الارتفاع العكسية للاتصال */
 @keyframes click-mechanic-up {
-  0% { transform: translateY(4px); box-shadow: 0 3px 0 var(--green-dark), inset 0 3px 5px rgba(0,0,0,0.1); }
-  50% { transform: translateY(-2px); box-shadow: 0 9px 0 var(--green-dark), 0 15px 25px rgba(27, 94, 53, 0.3); }
-  100% { transform: translateY(4px); box-shadow: 0 3px 0 var(--green-dark), inset 0 3px 5px rgba(0,0,0,0.1); }
+  0% { transform: translateY(4px); box-shadow: 0 2px 0 var(--green-dark), inset 0 2px 5px rgba(0,0,0,0.1); }
+  50% { transform: translateY(-2px); box-shadow: 0 8px 0 var(--green-dark), 0 15px 25px rgba(27, 94, 53, 0.3); }
+  100% { transform: translateY(4px); box-shadow: 0 2px 0 var(--green-dark), inset 0 2px 5px rgba(0,0,0,0.1); }
 }
 
-/* المميزات في سطر واحد */
-.features { 
-  display: flex; justify-content: center; align-items: center; 
-  gap: 15px; font-weight: 800; 
-  font-size: clamp(0.85rem, 3vw, 1.1rem); /* خط أكبر للمميزات */
-  color: var(--green); 
-  white-space: nowrap; flex-shrink: 0;
-}
-.feat { display: flex; align-items: center; gap: 4px; }
-.check { color: var(--wa); font-weight: bold; font-size: 1.1em; }
+.features { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; font-weight: 800; font-size: 0.95rem; color: var(--green); }
+.feat { display: flex; align-items: center; gap: 5px; }
+.check { color: var(--wa); font-weight: bold; font-size: 1.1rem; }
 
+.categories-bar { background: var(--green); color: #fff; padding: 15px 0; text-align: center; width: 100%; margin-top: auto; }
+.cat-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 20px; font-family: 'Lalezar'; font-size: 1.1rem; opacity: 0.95; }
+.cat-list span::after { content: ""; margin-right: 20px; }
+.cat-list span:last-child::after { content: ""; margin: 0; }
+
+@media (min-width: 768px) {
+  .wrap { max-width: 700px; }
+  .cta-group { flex-direction: row; }
+  h2 { font-size: 3.2rem; }
+  .desc { font-size: 1.25rem; }
+  .categories-bar { padding: 20px 0; }
+}
 </style>
 </head>
 <body>
@@ -168,20 +108,11 @@ h2 em::after {
 <div class="wrap">
   <section class="hero">
     <div class="status"><span class="dot"></span> متاحين الآن — تقييم مجاني</div>
-    
     <h2>نشتري أثاثك المستعمل<br><em>بأعلى سعر</em></h2>
-    
     <p class="desc">أرسل صور أثاثك على واتساب، نقيّمه فوراً ونستلمه من باب بيتك — والدفع كاش يداً بيد.</p>
 
-    <!-- الشريط المتحرك الممتلئ -->
-    <div class="marquee-wrapper">
-      <div class="marquee-track">
-        <span>مكيفات</span> ✦ <span>مطابخ</span> ✦ <span>غرف نوم</span> ✦ <span>ثلاجات</span> ✦ <span>كنب</span> ✦ <span>معدات مطابخ</span> ✦ <span>نقل عفش</span>
-        <span>مكيفات</span> ✦ <span>مطابخ</span> ✦ <span>غرف نوم</span> ✦ <span>ثلاجات</span> ✦ <span>كنب</span> ✦ <span>معدات مطابخ</span> ✦ <span>نقل عفش</span>
-      </div>
-    </div>
-
     <div class="cta-group">
+      <!-- تم إضافة معرف ID لتسهيل التحكم بالجافاسكريبت -->
       <a id="btnWa" href="https://wa.me/966548729056?text=السلام عليكم أبو حاتم 👋 عندي أثاث مستعمل وأبغى أعرضه." class="btn-main btn-wa" target="_blank">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm5.4 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-2.9-1.3-4.8-4.2-5-4.4-.1-.2-1.2-1.6-1.2-3.1s.8-2.2 1-2.5c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l1 2.3c.1.2.1.4 0 .6l-.4.6-.5.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1.1 2.2 1.4 2.5 1.5.3.2.5.1.7-.1l1-1.1c.2-.3.4-.2.7-.1l2.1 1c.3.2.5.2.6.4 0 .1 0 .6-.3 1.2z"/></svg>
         أرسل صور أثاثك
@@ -201,13 +132,23 @@ h2 em::after {
   </section>
 </div>
 
+<div class="categories-bar">
+  <div class="cat-list">
+    <span>مكيفات</span><span>مطابخ</span><span>غرف نوم</span><span>ثلاجات</span><span>كنب</span><span>معدات مطابخ</span><span>نقل عفش</span>
+  </div>
+</div>
+
 <script>
+  // دالة لإيقاف الانتقال الافتراضي وتشغيل الحركة ثم إعادة التوجيه
   function handlePress(e, elementId, animName) {
-    e.preventDefault();
+    e.preventDefault(); // منع الفتح المباشر
     const btn = document.getElementById(elementId);
-    btn.classList.remove('pressed-effect');
-    void btn.offsetWidth; 
     
+    // إزالة الكلاس إذا كان موجوداً لإعادة تشغيل الحركة
+    btn.classList.remove('pressed-effect');
+    void btn.offsetWidth; // خدعة لإعادة تفعيل الانيميشن
+    
+    // تحديد نوع الحركة بناءً على الزر
     if(animName === 'down') {
       btn.style.animationName = 'click-mechanic-down';
     } else {
@@ -215,7 +156,11 @@ h2 em::after {
     }
     
     btn.classList.add('pressed-effect');
-    setTimeout(() => { window.location.href = btn.getAttribute('href'); }, 800);
+
+    // الانتظار ثانية واحدة ثم التحويل
+    setTimeout(() => {
+      window.location.href = btn.getAttribute('href');
+    }, 1000);
   }
 
   document.getElementById('btnWa').addEventListener('click', (e) => handlePress(e, 'btnWa', 'down'));
