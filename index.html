@@ -22,6 +22,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { height: 100%; width: 100%; }
+html, body { overflow-x: hidden; }
 body { 
   font-family: 'Almarai', sans-serif; 
   background: var(--bg); 
@@ -210,30 +211,41 @@ h2 em::after {
 .feat { display: inline-flex; align-items: center; gap: 5px; }
 .check { color: var(--wa); font-weight: bold; font-size: 1.1rem; }
 
-/* ========== معرض الصور: كبير + خط مستقيم + يغطي كل المساحة أسفل ========== */
+/* ========== المعرض: حافة لحافة + يملأ كل المساحة أسفل + توقف باللمس ========== */
 .gallery-strip {
-  width: 100%;
-  flex: 1;                 /* يتمدد ليملأ كل المساحة الفارغة حتى أسفل الصفحة */
-  min-height: 180px;
-  display: flex;
-  align-items: center;     /* توسيط الصف عمودياً داخل المساحة */
-  overflow: hidden;
-  pointer-events: none;
-  user-select: none;
-  padding: 10px 0 14px;
-  margin-top: 4px;
-}
-.gallery-track {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);   /* يخرج الشريط من هوامش الصفحة ليصبح بعرض الشاشة كامل */
+  width: 100vw;
+  flex: 1;
+  min-height: 170px;
   display: flex;
   align-items: center;
-  width: max-content;
-  gap: clamp(30px, 9vw, 80px);
-  padding: 0 20px;
-  animation: marquee-scroll 26s linear infinite;  /* حركة أفقية مستقيمة فقط */
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  padding: 4px 0 8px;            /* هوامش داخلية شبه معدومة */
+  margin-top: 4px;
+  cursor: grab;
 }
+.gallery-strip:active { cursor: grabbing; }
+
+.gallery-track {
+  --ggap: clamp(24px, 7vw, 70px);
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: max-content;
+  gap: var(--ggap);
+  animation: gallery-scroll 30s linear infinite;
+}
+.gallery-track.paused { animation-play-state: paused; }  /* توقف فوري عند اللمس */
+
 .gallery-item {
-  height: clamp(130px, 36vw, 280px);   /* صور كبيرة */
-  width: clamp(170px, 47vw, 360px);
+  height: 100%;                  /* الصور تتمدد من أعلى الشريط لأسفله */
+  max-height: 480px;
+  aspect-ratio: 17 / 10;         /* نفس نسبة الصور تقريباً = بدون هوامش فارغة داخل الإطار */
   flex: 0 0 auto;
   background: transparent;
   border: none;
@@ -244,7 +256,13 @@ h2 em::after {
   object-fit: contain;
   display: block;
   background: transparent;
+  pointer-events: none;          /* اللمس يذهب للشريط نفسه */
   filter: drop-shadow(0 6px 10px rgba(26, 38, 32, 0.18));
+}
+
+@keyframes gallery-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(50% + var(--ggap) / 2)); }  /* حلقة مثالية بدون قفزة */
 }
 
 /* ================== الطبقة 1: نافذة بيانات الأثاث ================== */
@@ -556,8 +574,8 @@ h2 em::after {
     </div>
   </section>
 
-  <!-- المعرض: يبدأ مباشرة تحت المميزات ويتمدد ليغطي كل المساحة البيضاء حتى أسفل الشاشة -->
-  <div class="gallery-strip" aria-hidden="true">
+  <!-- المعرض: بعرض الشاشة كامل ويتمدد حتى أسفل الصفحة -->
+  <div class="gallery-strip" id="galleryStrip" aria-hidden="true">
     <div class="gallery-track" id="galleryTrack">
       <div class="gallery-item"><img data-src="images/ac" alt=""></div>
       <div class="gallery-item"><img data-src="images/kitchen" alt=""></div>
@@ -633,6 +651,7 @@ h2 em::after {
   const btnSubmit = document.getElementById('btnSubmit');
   const btnWa = document.getElementById('btnWa');
   const galleryTrack = document.getElementById('galleryTrack');
+  const galleryStrip = document.getElementById('galleryStrip');
 
   /* ========== تحميل الصور الذكي ========== */
   galleryTrack.innerHTML += galleryTrack.innerHTML;
@@ -658,6 +677,12 @@ h2 em::after {
 
     tryNext();
   });
+
+  /* ========== اللمس يوقف الحركة، ورفع الإصبع يعيدها فوراً ========== */
+  galleryStrip.addEventListener('pointerdown', () => galleryTrack.classList.add('paused'));
+  window.addEventListener('pointerup', () => galleryTrack.classList.remove('paused'));
+  window.addEventListener('pointercancel', () => galleryTrack.classList.remove('paused'));
+  window.addEventListener('blur', () => galleryTrack.classList.remove('paused'));
 
   let selectedType = '';
 
