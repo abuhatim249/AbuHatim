@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1B5E35">
 <title>أبو حاتم | شراء الأثاث المستعمل</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -147,16 +148,20 @@ h2 em::after {
 }
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
-  to { transform: translateX(50%); }
+  to   { transform: translateX(50%); }
 }
 
+/* ========== العبارة: سطرين فقط (بدون علامة —) ========== */
 .desc { 
-  font-size: 1.05rem; 
+  font-size: 0.95rem; 
   font-weight: 700; 
   color: var(--gray); 
-  line-height: 1.8; 
-  max-width: 95%; 
+  line-height: 1.7; 
+  max-width: 100%; 
   margin-inline: auto; 
+}
+@media (max-width: 360px) {
+  .desc { font-size: 0.85rem; }
 }
 
 .cta-group { 
@@ -213,7 +218,7 @@ h2 em::after {
 
 /* ========== المعرض: حافة لحافة من الجانبين تلقائياً ========== */
 .gallery-strip {
-  width: 100vw;              /* بعرض الشاشة كامل، والتوسيط التلقائي يجعله حافة لحافة */
+  width: 100vw;
   flex: 1;
   min-height: 150px;
   display: flex;
@@ -467,7 +472,6 @@ h2 em::after {
 }
 .picker-option.selected .tick { opacity: 1; color: #fff; }
 
-/* حقل الوصف */
 .desc-field {
   margin-top: 18px;
   opacity: 0;
@@ -522,7 +526,7 @@ h2 em::after {
   .wrap { max-width: 700px; }
   .cta-group { flex-direction: row; }
   h2 { font-size: 3.2rem; }
-  .desc { font-size: 1.25rem; }
+  .desc { font-size: 1.15rem; }
   .marquee-bar { padding: 10px 0; }
   .marquee-track { gap: 40px; font-size: 1.2rem; }
   .logo h1 { font-size: 2.1rem; }
@@ -549,7 +553,8 @@ h2 em::after {
       </div>
     </div>
     
-    <p class="desc">أرسل صور أثاثك على واتساب، نقيّمه فوراً ونستلمه من باب بيتك — والدفع كاش يداً بيد.</p>
+    <!-- العبارة: سطرين فقط، بدون علامة — -->
+    <p class="desc">أرسل صور أثاثك على واتساب، نقيّمه فوراً ونستلمه من باب بيتك، والدفع كاش يداً بيد.</p>
 
     <div class="cta-group">
       <a id="btnWa" href="#" class="btn-main btn-wa">
@@ -570,7 +575,6 @@ h2 em::after {
     </div>
   </section>
 
-  <!-- المعرض: بعرض الشاشة كامل من الحافة للحافة -->
   <div class="gallery-strip" id="galleryStrip" aria-hidden="true">
     <div class="gallery-track" id="galleryTrack">
       <div class="gallery-item"><img data-src="images/ac" alt=""></div>
@@ -584,7 +588,6 @@ h2 em::after {
   </div>
 </div>
 
-<!-- الطبقة 1: نافذة بيانات الأثاث -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-header">
@@ -615,7 +618,6 @@ h2 em::after {
   </div>
 </div>
 
-<!-- الطبقة 2: القائمة المنبثقة الكاملة للأنواع -->
 <div class="picker-overlay" id="picker">
   <div class="picker-panel">
     <div class="picker-header">
@@ -635,6 +637,15 @@ h2 em::after {
 </div>
 
 <script>
+  /* ========== تسجيل Service Worker للعمل دون إنترنت ========== */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('✅ تم تسجيل Service Worker — الموقع سيعمل دون إنترنت بعد أول زيارة'))
+        .catch((err) => console.warn('⚠️ فشل تسجيل Service Worker:', err));
+    });
+  }
+
   const modal = document.getElementById('modal');
   const modalClose = document.getElementById('modalClose');
   const selectField = document.getElementById('selectField');
@@ -649,7 +660,7 @@ h2 em::after {
   const galleryTrack = document.getElementById('galleryTrack');
   const galleryStrip = document.getElementById('galleryStrip');
 
-  /* ========== تحميل الصور الذكي ========== */
+  /* ========== تحميل الصور الذكي (والكاش يخزنها تلقائياً) ========== */
   galleryTrack.innerHTML += galleryTrack.innerHTML;
 
   document.querySelectorAll('.gallery-item img').forEach((img) => {
