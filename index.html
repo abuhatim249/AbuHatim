@@ -589,7 +589,7 @@ h2 em::after {
     </div>
   </section>
 
-  <!-- المعرض يُبنى تلقائياً من قائمة GALLERY_IMAGES داخل السكربت -->
+  <!-- المعرض يُبنى تلقائياً من محتويات مجلد images على GitHub -->
   <div class="gallery-strip" id="galleryStrip" aria-hidden="true">
     <div class="gallery-track" id="galleryTrack"></div>
   </div>
@@ -645,34 +645,16 @@ h2 em::after {
 
 <script>
   /* =====================================================
-     ⚙️ إعدادات المعرض — أضف أي صورة جديدة هنا بسطر واحد
-     ضع اسم الملف بدون امتداد داخل مجلد images وستظهر تلقائياً
+     ⚙️ الإعدادات العامة
      ===================================================== */
-  const GALLERY_IMAGES = [
-    'ac',
-    'kitchen',
-    'bedroom',
-    'fridge',
-    'sofa',
-    'kitchen-equipment',
-    'moving-truck'
-    // مثال لإضافة صورة جديدة: 'wardrobe',
-  ];
+  const CACHE_NAME = 'abu-hatem-v3';
+  const LIST_CACHE_KEY = 'gh-images-list';
+  const LIST_TTL = 5 * 60 * 1000; // تحديث قائمة الصور كل 5 دقائق
 
-  /* أسماء بديلة تُجرَّب تلقائياً عند فشل الاسم الأساسي
-     (تصلح أخطاء التسمية الشائعة مثل حرف ناقص) */
-  const NAME_ALIASES = {
-    'kitchen-equipment': ['itchen-equipment', 'kitchen_equipment', 'kitchenequipment'],
-    'moving-truck': ['moving_truck', 'movingtruck', 'truck'],
-    'bedroom': ['bed-room', 'bed_room'],
-    'fridge': ['refrigerator', 'thallajat'],
-    'sofa': ['couch', 'kanab'],
-    'ac': ['air-conditioner', 'airconditioner', 'mokif'],
-    'kitchen': ['kitchin', 'matbakh']
-  };
+  // احتياطي ثابت إذا فشل الاتصال بـ GitHub API
+  const FALLBACK_IMAGES = ['ac.png','kitchen.png','bedroom.png','fridge.png','sofa.png','itchen-equipment.png','moving-truck.png'];
 
-  const IMAGE_EXTS = ['png', 'webp', 'jpg', 'jpeg'];
-  const CACHE_NAME = 'abu-hatem-v2';
+  const IMAGE_EXT_RE = /\.(png|jpe?g|webp|gif|svg|avif)$/i;
 
   const modal = document.getElementById('modal');
   const modalClose = document.getElementById('modalClose');
@@ -689,20 +671,57 @@ h2 em::after {
   const galleryStrip = document.getElementById('galleryStrip');
   const offlineBadge = document.getElementById('offlineBadge');
 
-  /* ========== بناء المعرض ديناميكياً من القائمة ========== */
-  GALLERY_IMAGES.forEach(name => {
-    const item = document.createElement('div');
-    item.className = 'gallery-item';
-    const img = document.createElement('img');
-    img.alt = '';
-    img.dataset.base = name;
-    item.appendChild(img);
-    galleryTrack.appendChild(item);
-  });
-  // تكرار العناصر لعمل حلقة تمرير متواصلة
-  galleryTrack.innerHTML += galleryTrack.innerHTML;
+  /* =====================================================
+     🔄 القراءة التلقائية لمجلد images عبر GitHub API
+     أي صورة ترفعها بأي اسم تظهر تلقائياً بدون تعديل الكود
+     ===================================================== */
+  function ghInfo() {
+    const owner = location.hostname.endsWith('github.io')
+      ? location.hostname.split('.')[0]
+      : 'abuhatim249';
+    const repo = location.pathname.split('/')[1] || 'AbuHatim';
+    return { owner, repo };
+  }
 
-  /* ========== المحمّل الذكي: الاسم → الأسماء البديلة → الامتدادات ========== */
+  async function fetchRepoImageList() {
+    // 1) نسخة محلية حديثة؟
+    try {
+      const cached = JSON.parse(localStorage.getItem(LIST_CACHE_KEY) || 'null');
+      if (cached && Date.now() - cached.t < LIST_TTL && cached.names.length) return cached.names;
+    } catch {}
+
+    // 2) جلب القائمة من GitHub API
+    try {
+      const { owner, repo } = ghInfo();
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/images`, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if (!res.ok) throw new Error('API ' + res.status);
+      const data = await res.json();
+      const names = data
+        .filter(f => f.type === 'file' && IMAGE_EXT_RE.test(f.name))
+        .map(f => f.name);
+      if (names.length) {
+        localStorage.setItem(LIST_CACHE_KEY, JSON.stringify({ t: Date.now(), names }));
+        console.log('✅ تم قراءة مجلد images تلقائياً:', names.join(', '));
+        return names;
+      }
+      throw new Error('empty');
+    } catch (e) {
+      console.warn('⚠️ تعذر قراءة القائمة من GitHub API، سيتم استخدام النسخة المحفوظة أو الاحتياطية');
+    }
+
+    // 3) نسخة محلية قديمة؟
+    try {
+      const cached = JSON.parse(localStorage.getItem(LIST_CACHE_KEY) || 'null');
+      if (cached && cached.names.length) return cached.names;
+    } catch {}
+
+    // 4) القائمة الاحتياطية
+    return FALLBACK_IMAGES;
+  }
+
+  /* ========== بناء المعرض وتحميل الصور ========== */
   async function cacheImage(url) {
     if (!('caches' in window)) return;
     try {
@@ -712,33 +731,59 @@ h2 em::after {
     } catch {}
   }
 
-  function makeLoader(img) {
-    const base = img.dataset.base;
-    const candidates = [base, ...(NAME_ALIASES[base] || [])];
-    const queue = [];
-    candidates.forEach(c => IMAGE_EXTS.forEach(e => queue.push('images/' + c + '.' + e)));
+  function makeLoader(img, fileName) {
+    const base = fileName.replace(/\.[^.]+$/, '');
+    const ext = (fileName.match(/\.[^.]+$/) || ['.png'])[0];
+    const queue = [
+      'images/' + fileName,
+      ...['.png','.webp','.jpg','.jpeg'].map(e => 'images/' + base + e)
+    ];
+    // إزالة التكرار مع الحفاظ على الترتيب
+    const unique = [...new Set(queue)];
     let i = 0;
 
     function fail() {
-      if (i >= queue.length) {
-        console.warn('⚠️ لم يتم العثور على صورة باسم: ' + base + ' — أضف الملف أو صحّح اسمه في مجلد images');
+      if (i >= unique.length) {
+        console.warn('⚠️ صورة مفقودة: ' + fileName);
         img.closest('.gallery-item').style.display = 'none';
         return;
       }
-      img.src = queue[i++];
+      img.src = unique[i++];
     }
 
     img.addEventListener('error', fail);
     img.addEventListener('load', () => {
       img.removeEventListener('error', fail);
-      console.log('✅ ظهرت الصورة: ' + img.src);
-      cacheImage(img.currentSrc || img.src); // حفظها للعمل دون إنترنت
+      cacheImage(img.currentSrc || img.src);
     }, { once: true });
 
     fail();
   }
 
-  document.querySelectorAll('.gallery-item img').forEach(makeLoader);
+  async function buildGallery() {
+    const names = await fetchRepoImageList();
+
+    names.forEach(name => {
+      const item = document.createElement('div');
+      item.className = 'gallery-item';
+      const img = document.createElement('img');
+      img.alt = '';
+      item.appendChild(img);
+      galleryTrack.appendChild(item);
+      makeLoader(img, name);
+    });
+
+    if (!names.length) {
+      galleryStrip.style.display = 'none';
+      return;
+    }
+
+    // تكرار العناصر لعمل حلقة تمرير متواصلة
+    galleryTrack.innerHTML += galleryTrack.innerHTML;
+    // إعادة ربط المحمّل للنسخ المكررة (src محفوظ بالفعل)
+  }
+
+  buildGallery();
 
   /* ========== Service Worker مضمن للعمل دون إنترنت ========== */
   const SW_CODE = `
