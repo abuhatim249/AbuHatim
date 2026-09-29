@@ -113,7 +113,6 @@ h2 em::after {
   border-radius: 4px; 
 }
 
-/* شريط التمرير (الخدمات) - أسفل العنوان مباشرة */
 .marquee-bar {
   width: 100%;
   overflow: hidden;
@@ -159,7 +158,6 @@ h2 em::after {
   margin-inline: auto; 
 }
 
-/* تصميم الأزرار 3D */
 .cta-group { 
   display: flex; 
   flex-direction: column; 
@@ -179,39 +177,25 @@ h2 em::after {
   border: none; 
   cursor: pointer; 
   position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-wa { 
   background: var(--wa); 
   color: #fff; 
   box-shadow: 0 6px 0 var(--wa-dark), 0 12px 20px rgba(37, 211, 102, 0.25); 
-  transform: translateY(0);
 }
 
 .btn-call { 
   background: var(--green); 
   color: #fff; 
   box-shadow: 0 2px 0 var(--green-dark), inset 0 2px 5px rgba(0,0,0,0.1); 
-  transform: translateY(4px); 
 }
 
-.pressed-effect {
-  animation: click-mechanic 1s ease-in-out forwards !important;
-}
+.btn-main:active { transform: translateY(4px) !important; }
+.btn-wa:active { box-shadow: 0 2px 0 var(--wa-dark), 0 4px 10px rgba(37, 211, 102, 0.2); }
+.btn-call:active { box-shadow: 0 0 0 var(--green-dark), inset 0 2px 8px rgba(0,0,0,0.25); }
 
-@keyframes click-mechanic-down {
-  0% { transform: translateY(0); box-shadow: 0 6px 0 var(--wa-dark), 0 12px 20px rgba(37, 211, 102, 0.25); }
-  50% { transform: translateY(6px); box-shadow: 0 0 0 var(--wa-dark), 0 2px 5px rgba(37, 211, 102, 0.2); }
-  100% { transform: translateY(0); box-shadow: 0 6px 0 var(--wa-dark), 0 12px 20px rgba(37, 211, 102, 0.25); }
-}
-
-@keyframes click-mechanic-up {
-  0% { transform: translateY(4px); box-shadow: 0 2px 0 var(--green-dark), inset 0 2px 5px rgba(0,0,0,0.1); }
-  50% { transform: translateY(-2px); box-shadow: 0 8px 0 var(--green-dark), 0 15px 25px rgba(27, 94, 53, 0.3); }
-  100% { transform: translateY(4px); box-shadow: 0 2px 0 var(--green-dark), inset 0 2px 5px rgba(0,0,0,0.1); }
-}
-
-/* الميزات - في صف واحد بدون التفاف */
 .features { 
   display: flex; 
   flex-wrap: nowrap; 
@@ -226,6 +210,306 @@ h2 em::after {
 .feat { display: inline-flex; align-items: center; gap: 5px; }
 .check { color: var(--wa); font-weight: bold; font-size: 1.1rem; }
 
+/* ========== معرض الصور — مباشرة أسفل صف المميزات ========== */
+.gallery-strip {
+  width: 100%;
+  overflow: hidden;
+  padding: 6px 0 4px;
+  margin-top: 2px;
+  min-height: 76px; /* يحجز المكان حتى قبل تحميل الصور */
+  pointer-events: none;
+  user-select: none;
+}
+.gallery-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: 40px;
+  padding: 0 20px;
+  animation: marquee-scroll 22s linear infinite;
+}
+.gallery-item {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: transparent;
+  animation: floaty 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 4px 6px rgba(26, 38, 32, 0.15));
+}
+.gallery-item:nth-child(2n) img { animation-delay: 0.5s; }
+.gallery-item:nth-child(3n) img { animation-delay: 1s; }
+.gallery-item:nth-child(5n) img { animation-delay: 1.5s; }
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+/* ================== الطبقة 1: نافذة بيانات الأثاث ================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 58, 32, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.active { display: flex; opacity: 1; }
+
+.modal {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.modal-overlay.active .modal { transform: translateY(0) scale(1); }
+
+.modal-header {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  color: #fff;
+  padding: 20px 22px;
+  border-radius: 24px 24px 0 0;
+  position: relative;
+  text-align: center;
+}
+.modal-header h3 {
+  font-family: 'Lalezar';
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.modal-header p { font-size: 0.9rem; opacity: 0.9; font-weight: 400; }
+.modal-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.35); }
+
+.modal-body { padding: 22px; }
+
+.field-label {
+  font-family: 'Lalezar';
+  font-size: 1.05rem;
+  color: var(--green);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-label::before {
+  content: "";
+  width: 4px;
+  height: 18px;
+  background: var(--amber);
+  border-radius: 2px;
+}
+
+.select-wrapper { text-align: right; margin-bottom: 18px; }
+.select-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+.select-field:hover { border-color: var(--green); }
+.select-field:active { box-shadow: 0 0 0 3px rgba(27, 94, 53, 0.1); }
+.select-value.placeholder { color: var(--gray); opacity: 0.6; font-weight: 600; }
+.select-arrow { width: 18px; height: 18px; fill: var(--green); flex-shrink: 0; }
+
+/* ================== الطبقة 2: القائمة المنبثقة الكاملة للأنواع ================== */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 58, 32, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 200;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.picker-overlay.active { display: flex; opacity: 1; }
+
+.picker-panel {
+  background: #fff;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+  transform: translateY(25px) scale(0.96);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.picker-overlay.active .picker-panel { transform: translateY(0) scale(1); }
+
+.picker-header {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.picker-header h4 {
+  font-family: 'Lalezar';
+  color: #fff;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+.picker-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.picker-close:hover { background: rgba(255,255,255,0.35); }
+
+.picker-list {
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.picker-option {
+  padding: 14px 16px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.picker-option:hover { border-color: var(--green); background: #fff; }
+.picker-option:active { transform: scale(0.98); }
+.picker-option.selected {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  color: #fff;
+  border-color: var(--green);
+}
+.picker-option .emoji { font-size: 1.3rem; line-height: 1; }
+.picker-option .tick {
+  margin-inline-start: auto;
+  color: var(--wa);
+  font-weight: bold;
+  font-size: 1.15rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.picker-option.selected .tick { opacity: 1; color: #fff; }
+
+/* حقل الوصف */
+.desc-field {
+  margin-top: 18px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.4s ease, margin 0.3s ease;
+}
+.desc-field.visible { opacity: 1; max-height: 300px; margin-top: 18px; }
+
+.desc-field textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 14px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  font-family: 'Almarai', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+  resize: vertical;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.desc-field textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(27, 94, 53, 0.1); }
+.desc-field textarea::placeholder { color: var(--gray); opacity: 0.6; }
+
+.btn-submit {
+  width: 100%;
+  background: var(--wa);
+  color: #fff;
+  border: none;
+  padding: 16px;
+  border-radius: 16px;
+  font-family: 'Lalezar';
+  font-size: 1.3rem;
+  cursor: pointer;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 6px 0 var(--wa-dark), 0 10px 20px rgba(37, 211, 102, 0.25);
+  transition: all 0.15s ease;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.btn-submit.active { opacity: 1; pointer-events: auto; }
+.btn-submit:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--wa-dark), 0 4px 10px rgba(37, 211, 102, 0.2); }
+
 @media (min-width: 768px) {
   .wrap { max-width: 700px; }
   .cta-group { flex-direction: row; }
@@ -234,6 +518,8 @@ h2 em::after {
   .marquee-bar { padding: 10px 0; }
   .marquee-track { gap: 40px; font-size: 1.2rem; }
   .logo h1 { font-size: 2.1rem; }
+  .gallery-item { width: 88px; height: 88px; }
+  .gallery-track { gap: 55px; }
 }
 </style>
 </head>
@@ -249,7 +535,6 @@ h2 em::after {
     
     <h2>نشتري أثاثك المستعمل<br><em>بأعلى سعر</em></h2>
     
-    <!-- شريط التمرير أسفل "بأعلى سعر" مباشرة -->
     <div class="marquee-bar">
       <div class="marquee-track">
         <span>مكيفات</span><span>مطابخ</span><span>غرف نوم</span><span>ثلاجات</span><span>كنب</span><span>معدات مطابخ</span><span>نقل عفش</span>
@@ -260,7 +545,7 @@ h2 em::after {
     <p class="desc">أرسل صور أثاثك على واتساب، نقيّمه فوراً ونستلمه من باب بيتك — والدفع كاش يداً بيد.</p>
 
     <div class="cta-group">
-      <a id="btnWa" href="https://wa.me/966548729056?text=السلام عليكم أبو حاتم 👋 عندي أثاث مستعمل وأبغى أعرضه." class="btn-main btn-wa" target="_blank">
+      <a id="btnWa" href="#" class="btn-main btn-wa">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm5.4 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-2.9-1.3-4.8-4.2-5-4.4-.1-.2-1.2-1.6-1.2-3.1s.8-2.2 1-2.5c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l1 2.3c.1.2.1.4 0 .6l-.4.6-.5.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1.1 2.2 1.4 2.5 1.5.3.2.5.1.7-.1l1-1.1c.2-.3.4-.2.7-.1l2.1 1c.3.2.5.2.6.4 0 .1 0 .6-.3 1.2z"/></svg>
         أرسل صور أثاثك
       </a>
@@ -276,32 +561,226 @@ h2 em::after {
       <span class="feat"><span class="check">✓</span> فك وتحميل علينا</span>
       <span class="feat"><span class="check">✓</span> تقييم خلال دقائق</span>
     </div>
+
+    <!-- معرض الصور — مباشرة أسفل صف المميزات -->
+    <!-- data-src بدون امتداد: الكود يجرب png ثم webp ثم jpg ثم jpeg تلقائياً -->
+    <div class="gallery-strip" aria-hidden="true">
+      <div class="gallery-track" id="galleryTrack">
+        <div class="gallery-item"><img data-src="images/ac" alt=""></div>
+        <div class="gallery-item"><img data-src="images/kitchen" alt=""></div>
+        <div class="gallery-item"><img data-src="images/bedroom" alt=""></div>
+        <div class="gallery-item"><img data-src="images/fridge" alt=""></div>
+        <div class="gallery-item"><img data-src="images/sofa" alt=""></div>
+        <div class="gallery-item"><img data-src="images/kitchen-equipment" alt=""></div>
+        <div class="gallery-item"><img data-src="images/moving-truck" alt=""></div>
+      </div>
+    </div>
   </section>
 </div>
 
-<script>
-  function handlePress(e, elementId, animName) {
-    e.preventDefault();
-    const btn = document.getElementById(elementId);
-    
-    btn.classList.remove('pressed-effect');
-    void btn.offsetWidth;
-    
-    if(animName === 'down') {
-      btn.style.animationName = 'click-mechanic-down';
-    } else {
-      btn.style.animationName = 'click-mechanic-up';
-    }
-    
-    btn.classList.add('pressed-effect');
+<!-- الطبقة 1: نافذة بيانات الأثاث -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <button class="modal-close" id="modalClose">×</button>
+      <h3>بيانات الأثاث</h3>
+      <p>اختر النوع واكتب وصف مختصر</p>
+    </div>
+    <div class="modal-body">
+      
+      <div class="select-wrapper">
+        <label class="field-label">اختر نوع الأثاث:</label>
+        <div class="select-field" id="selectField">
+          <span class="select-value placeholder" id="selectValue">اضغط لاختيار النوع...</span>
+          <svg class="select-arrow" viewBox="0 0 24 24"><path d="M7.4 8.6 12 13.2l4.6-4.6 1.4 1.4-6 6-6-6z"/></svg>
+        </div>
+      </div>
 
-    setTimeout(() => {
-      window.location.href = btn.getAttribute('href');
-    }, 1000);
+      <div class="desc-field" id="descField">
+        <label class="field-label">وصف الأثاث:</label>
+        <textarea id="descInput" placeholder=""></textarea>
+      </div>
+
+      <button class="btn-submit" id="btnSubmit">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm5.4 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-2.9-1.3-4.8-4.2-5-4.4-.1-.2-1.2-1.6-1.2-3.1s.8-2.2 1-2.5c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l1 2.3c.1.2.1.4 0 .6l-.4.6-.5.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1.1 2.2 1.4 2.5 1.5.3.2.5.1.7-.1l1-1.1c.2-.3.4-.2.7-.1l2.1 1c.3.2.5.2.6.4 0 .1 0 .6-.3 1.2z"/></svg>
+        إرسال عبر الواتساب
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- الطبقة 2: القائمة المنبثقة الكاملة للأنواع -->
+<div class="picker-overlay" id="picker">
+  <div class="picker-panel">
+    <div class="picker-header">
+      <h4>اختر نوع الأثاث</h4>
+      <button class="picker-close" id="pickerClose">×</button>
+    </div>
+    <div class="picker-list" id="pickerList">
+      <div class="picker-option" data-type="مكيفات">مكيفات<span class="tick">✓</span></div>
+      <div class="picker-option" data-type="مطابخ">مطابخ<span class="tick">✓</span></div>
+      <div class="picker-option" data-type="غرف نوم">غرف نوم<span class="tick">✓</span></div>
+      <div class="picker-option" data-type="ثلاجات">ثلاجات<span class="tick">✓</span></div>
+      <div class="picker-option" data-type="كنب">كنب<span class="tick">✓</span></div>
+      <div class="picker-option" data-type="معدات مطابخ">معدات مطابخ<span class="tick">✓</span></div>
+      <div class="picker-option" data-type="نقل عفش"><span class="emoji">🚚</span>نقل عفش<span class="tick">✓</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('modal');
+  const modalClose = document.getElementById('modalClose');
+  const selectField = document.getElementById('selectField');
+  const selectValue = document.getElementById('selectValue');
+  const picker = document.getElementById('picker');
+  const pickerClose = document.getElementById('pickerClose');
+  const pickerList = document.getElementById('pickerList');
+  const descField = document.getElementById('descField');
+  const descInput = document.getElementById('descInput');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const btnWa = document.getElementById('btnWa');
+  const galleryTrack = document.getElementById('galleryTrack');
+
+  /* ========== تحميل الصور الذكي ========== */
+  // 1) تكرار العناصر لعمل حلقة تمرير متواصلة
+  galleryTrack.innerHTML += galleryTrack.innerHTML;
+
+  // 2) لكل صورة: جرّب الامتدادات بالترتيب png → webp → jpg → jpeg
+  document.querySelectorAll('.gallery-item img').forEach((img) => {
+    const base = img.getAttribute('data-src');
+    const exts = ['png', 'webp', 'jpg', 'jpeg'];
+    let i = 0;
+
+    function tryNext() {
+      if (i >= exts.length) {
+        console.warn('⚠️ لم يتم العثور على الصورة: ' + base + '.[png/webp/jpg/jpeg] — تأكد من اسم الملف ومجلد images');
+        img.closest('.gallery-item').style.display = 'none';
+        return;
+      }
+      img.src = base + '.' + exts[i++];
+    }
+
+    img.addEventListener('error', tryNext);
+    img.addEventListener('load', () => {
+      img.removeEventListener('error', tryNext);
+      console.log('✅ تم تحميل: ' + img.src);
+    }, { once: true });
+
+    tryNext();
+  });
+
+  let selectedType = '';
+
+  /* ========== نظام الطبقات + زر رجوع الهاتف ========== */
+  const layerStack = [];
+
+  function pushLayer(name) {
+    layerStack.push(name);
+    history.pushState({ layer: name }, '');
   }
 
-  document.getElementById('btnWa').addEventListener('click', (e) => handlePress(e, 'btnWa', 'down'));
-  document.getElementById('btnCall').addEventListener('click', (e) => handlePress(e, 'btnCall', 'up'));
+  window.addEventListener('popstate', () => {
+    if (!layerStack.length) return;
+    const top = layerStack.pop();
+    if (top === 'picker') hidePicker();
+    else if (top === 'modal') hideModal();
+  });
+
+  function goBack() {
+    if (layerStack.length) history.back();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') goBack();
+  });
+
+  /* ========== تلميحات واضحة ومناسبة لكل نوع ========== */
+  const placeholders = {
+    'مكيفات': 'مثال: مكيف سبليت 24 وحدة، عدد 2، التبريد ممتاز ويشتغل بدون مشاكل، الاستخدام 3 سنوات، مركّب على الجدار',
+    'مطابخ': 'مثال: مطبخ خشب إم دي إف مقاس 4×3 متر، اللون بني فاتح، مع فرن غاز وسحّاب وشفاط، حالة ممتازة بدون تلف',
+    'غرف نوم': 'مثال: غرفة نوم كاملة 5 قطع (سرير كينق + خزانة 6 أبواب + تسريحة + طاولتين جانبيتين)، خشب زان، حالة ممتازة',
+    'ثلاجات': 'مثال: ثلاجة سايد باي سايد 24 قدم، ماركة LG، التبريد والتجميد شغالين بالكامل، بدون صدأ أو خدوش، استعمال 4 سنوات',
+    'كنب': 'مثال: مجلس عربي 12 جلسة مع طاولتين، قماش مخمل لون بيج، الهيكل خشب صلب، نظيف بدون بقع أو تمزق',
+    'معدات مطابخ': 'مثال: فرن غاز 5 شعلة مع شواية، ميكروويف شغال، قدور ستانلس عدد 6، كل المعدات نظيفة وبحالة جيدة',
+    'نقل عفش': 'مثال: نقل عفش شقة 3 غرف من حي النرجس إلى حي الملقا، الدور الثالث ويوجد مصعد، العفش يشمل كنب وغرف نوم وثلاجة'
+  };
+
+  /* ========== فتح وإغلاق الطبقات ========== */
+  function openModal() {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    pushLayer('modal');
+  }
+  function hideModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(resetForm, 250);
+  }
+  function openPicker() {
+    picker.classList.add('active');
+    pushLayer('picker');
+  }
+  function hidePicker() {
+    picker.classList.remove('active');
+  }
+  function resetForm() {
+    selectValue.textContent = 'اضغط لاختيار النوع...';
+    selectValue.classList.add('placeholder');
+    document.querySelectorAll('.picker-option').forEach(o => o.classList.remove('selected'));
+    descField.classList.remove('visible');
+    descInput.value = '';
+    btnSubmit.classList.remove('active');
+    selectedType = '';
+  }
+
+  /* ========== الأحداث ========== */
+  btnWa.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal();
+  });
+
+  modalClose.addEventListener('click', goBack);
+  modal.addEventListener('click', (e) => { if (e.target === modal) goBack(); });
+
+  selectField.addEventListener('click', openPicker);
+
+  pickerClose.addEventListener('click', goBack);
+  picker.addEventListener('click', (e) => { if (e.target === picker) goBack(); });
+
+  pickerList.addEventListener('click', (e) => {
+    const opt = e.target.closest('.picker-option');
+    if (!opt) return;
+
+    document.querySelectorAll('.picker-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedType = opt.dataset.type;
+
+    selectValue.textContent = selectedType;
+    selectValue.classList.remove('placeholder');
+
+    descField.classList.add('visible');
+    descInput.placeholder = placeholders[selectedType];
+    btnSubmit.classList.add('active');
+
+    goBack();
+  });
+
+  btnSubmit.addEventListener('click', () => {
+    if (!selectedType) return;
+
+    const desc = descInput.value.trim() || 'لا يوجد وصف إضافي';
+    const message = `السلام عليكم أبو حاتم 👋\n\n📦 نوع الأثاث: ${selectedType}\n📝 الوصف: ${desc}`;
+    const waUrl = `https://wa.me/966548729056?text=${encodeURIComponent(message)}`;
+
+    const steps = layerStack.length;
+    layerStack.length = 0;
+    hidePicker();
+    hideModal();
+    if (steps > 0) history.go(-steps);
+
+    setTimeout(() => { window.location.href = waUrl; }, 80);
+  });
 </script>
 
 </body>
